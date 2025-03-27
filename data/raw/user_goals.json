@@ -1,0 +1,68 @@
+{
+  "user_id": "user123",
+  "name": "Alex Johnson",
+  "age": 32,
+  "primary_goals": [
+    {
+      "area": "fitness",
+      "goal": "Train for a half marathon in 3 months",
+      "target_date": "2023-06-15",
+      "priority": "high",
+      "metrics": ["weekly_mileage", "pace", "recovery_score"]
+    },
+    {
+      "area": "sleep",
+      "goal": "Improve sleep quality and consistency",
+      "target_date": "ongoing",
+      "priority": "medium",
+      "metrics": ["deep_sleep_percentage", "sleep_consistency", "sleep_latency"]
+    },
+    {
+      "area": "stress",
+      "goal": "Reduce daily stress levels",
+      "target_date": "ongoing",
+      "priority": "medium",
+      "metrics": ["hrv_trend", "resting_hr", "stress_score"]
+    }
+  ],
+  "specific_targets": {
+    "weekly_mileage": {
+      "current": 15,
+      "target": 30,
+      "unit": "miles"
+    },
+    "half_marathon_pace": {
+      "current": "9:45",
+      "target": "8:30",
+      "unit": "min/mile"
+    },
+    "sleep_duration": {
+      "current": 6.5,
+      "target": 7.5,
+      "unit": "hours"
+    },
+    "deep_sleep_percentage": {
+      "current": 18,
+      "target": 25,
+      "unit": "percent"
+    },
+    "resting_hr": {
+      "current": 62,
+      "target": 55,
+      "unit": "bpm"
+    }
+  },
+  "preferences": {
+    "training_days": ["Monday", "Wednesday", "Friday", "Sunday"],
+    "preferred_activities": ["running", "cycling", "strength training"],
+    "avoid_activities": ["swimming"],
+    "coaching_style": "motivational",
+    "notification_frequency": "daily"
+  },
+  "health_context": {
+    "conditions": ["mild knee pain"],
+    "limitations": ["avoid high-impact on consecutive days"],
+    "supplements": ["vitamin D", "magnesium"],
+    "recent_changes": ["started new job with longer commute"]
+  }
+}

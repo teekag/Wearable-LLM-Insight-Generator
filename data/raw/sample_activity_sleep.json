@@ -1,0 +1,141 @@
+{
+  "user_id": "user123",
+  "data_period": "2023-03-15 to 2023-03-16",
+  "activities": [
+    {
+      "date": "2023-03-15",
+      "activity_type": "run",
+      "start_time": "2023-03-15 07:30:00",
+      "end_time": "2023-03-15 08:15:00",
+      "duration": 45,
+      "distance": 5.2,
+      "steps": 6500,
+      "calories": 420,
+      "avg_heart_rate": 145,
+      "max_heart_rate": 172,
+      "intensity": 7.5,
+      "zones": {
+        "zone1": 5,
+        "zone2": 10,
+        "zone3": 20,
+        "zone4": 8,
+        "zone5": 2
+      }
+    },
+    {
+      "date": "2023-03-15",
+      "activity_type": "walk",
+      "start_time": "2023-03-15 12:30:00",
+      "end_time": "2023-03-15 13:00:00",
+      "duration": 30,
+      "distance": 2.1,
+      "steps": 3200,
+      "calories": 150,
+      "avg_heart_rate": 110,
+      "max_heart_rate": 125,
+      "intensity": 3.2,
+      "zones": {
+        "zone1": 20,
+        "zone2": 10,
+        "zone3": 0,
+        "zone4": 0,
+        "zone5": 0
+      }
+    },
+    {
+      "date": "2023-03-15",
+      "activity_type": "strength",
+      "start_time": "2023-03-15 18:00:00",
+      "end_time": "2023-03-15 18:45:00",
+      "duration": 45,
+      "steps": 1200,
+      "calories": 280,
+      "avg_heart_rate": 130,
+      "max_heart_rate": 155,
+      "intensity": 6.8,
+      "zones": {
+        "zone1": 5,
+        "zone2": 15,
+        "zone3": 20,
+        "zone4": 5,
+        "zone5": 0
+      }
+    },
+    {
+      "date": "2023-03-16",
+      "activity_type": "cycle",
+      "start_time": "2023-03-16 07:45:00",
+      "end_time": "2023-03-16 08:30:00",
+      "duration": 45,
+      "distance": 12.5,
+      "steps": 0,
+      "calories": 380,
+      "avg_heart_rate": 138,
+      "max_heart_rate": 162,
+      "intensity": 7.2,
+      "zones": {
+        "zone1": 5,
+        "zone2": 12,
+        "zone3": 18,
+        "zone4": 10,
+        "zone5": 0
+      }
+    }
+  ],
+  "daily_totals": [
+    {
+      "date": "2023-03-15",
+      "total_steps": 12500,
+      "total_calories": 2250,
+      "active_minutes": 120,
+      "floors_climbed": 12,
+      "distance": 8.5
+    },
+    {
+      "date": "2023-03-16",
+      "total_steps": 8700,
+      "total_calories": 1950,
+      "active_minutes": 85,
+      "floors_climbed": 8,
+      "distance": 14.2
+    }
+  ],
+  "sleep_sessions": [
+    {
+      "date": "2023-03-15",
+      "start_time": "2023-03-15 23:15:00",
+      "end_time": "2023-03-16 06:45:00",
+      "duration": 450,
+      "deep_sleep": 95,
+      "light_sleep": 235,
+      "rem_sleep": 90,
+      "awake": 30,
+      "sleep_score": 82,
+      "hr_lowest": 52,
+      "hr_average": 58,
+      "respiratory_rate": 14.2,
+      "sleep_cycles": 4,
+      "sleep_latency": 12,
+      "restless_periods": 3,
+      "temperature_deviation": 0.2
+    },
+    {
+      "date": "2023-03-16",
+      "start_time": "2023-03-16 23:30:00",
+      "end_time": "2023-03-17 06:30:00",
+      "duration": 420,
+      "deep_sleep": 85,
+      "light_sleep": 225,
+      "rem_sleep": 80,
+      "awake": 30,
+      "sleep_score": 78,
+      "hr_lowest": 54,
+      "hr_average": 60,
+      "respiratory_rate": 14.5,
+      "sleep_cycles": 3,
+      "sleep_latency": 15,
+      "restless_periods": 4,
+      "temperature_deviation": 0.3
+    }
+  ]
+}
