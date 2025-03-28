@@ -1,4 +1,4 @@
-# Wearable LLM Insight Generator
+# Wearable Data Insight Generator
 
 A modular AI system that ingests raw time-series data from wearables and generates personalized insights using Large Language Models (LLMs).
 
@@ -10,7 +10,7 @@ This system was built and validated on the publicly available DiaTrend dataset, 
 
 ## Model Architecture
 
-The Wearable LLM Insight Generator uses a hybrid architecture combining feature engineering and LLM fine-tuning:
+The Wearable Data Insight Generator uses a hybrid architecture combining feature engineering and LLM fine-tuning:
 
 ### Base Model Selection
 - **Foundation Model**: Mistral 7B (selected for its strong performance on biomedical tasks)
@@ -54,7 +54,7 @@ The Wearable LLM Insight Generator uses a hybrid architecture combining feature 
 ## Project Structure
 
 ```
-wearable-llm-insight-generator/
+wearable-data-insight-generator/
 ├── data/
 │   ├── raw/             # Raw data from wearable devices
 │   │   └── diatrend/    # DiaTrend dataset files
@@ -143,8 +143,8 @@ The model has been rigorously evaluated on multiple dimensions to ensure high-qu
 
 1. Clone the repository:
    ```
-   git clone https://github.com/teekag/Wearable-LLM-Insight-Generator.git
-   cd Wearable-LLM-Insight-Generator
+   git clone https://github.com/teekag/Wearable-Data-Insight-Generator.git
+   cd Wearable-Data-Insight-Generator
    ```
 
 2. Create a virtual environment:
