@@ -1,0 +1,132 @@
+[
+  {
+    "timestamp": "2025-03-01T08:00:00Z",
+    "hrv": 68.5,
+    "sleep_quality": 87.2,
+    "activity_level": 65.0,
+    "subjective_recovery": 82.5,
+    "notes": "Felt well-rested, ready for training",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-02T08:00:00Z",
+    "hrv": 62.3,
+    "sleep_quality": 79.8,
+    "activity_level": 88.5,
+    "subjective_recovery": 71.2,
+    "notes": "Hard training session yesterday",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-03T08:00:00Z",
+    "hrv": 59.1,
+    "sleep_quality": 72.5,
+    "activity_level": 45.0,
+    "subjective_recovery": 65.8,
+    "notes": "Feeling fatigued, took it easy today",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-04T08:00:00Z",
+    "hrv": 63.7,
+    "sleep_quality": 81.3,
+    "activity_level": 52.0,
+    "subjective_recovery": 75.4,
+    "notes": "Recovery improving",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-05T08:00:00Z",
+    "hrv": 70.2,
+    "sleep_quality": 88.7,
+    "activity_level": 78.5,
+    "subjective_recovery": 85.9,
+    "notes": "Feeling strong today",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-06T08:00:00Z",
+    "hrv": 72.8,
+    "sleep_quality": 90.1,
+    "activity_level": 82.0,
+    "subjective_recovery": 89.3,
+    "notes": "Peak performance day",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-07T08:00:00Z",
+    "hrv": 67.5,
+    "sleep_quality": 85.4,
+    "activity_level": 91.5,
+    "subjective_recovery": 76.8,
+    "notes": "Competition day, pushed hard",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-08T08:00:00Z",
+    "hrv": 61.2,
+    "sleep_quality": 78.9,
+    "activity_level": 42.0,
+    "subjective_recovery": 68.5,
+    "notes": "Recovery day after competition",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-09T08:00:00Z",
+    "hrv": 64.8,
+    "sleep_quality": 83.2,
+    "activity_level": 55.0,
+    "subjective_recovery": 74.7,
+    "notes": "Light training, focusing on technique",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  },
+  {
+    "timestamp": "2025-03-10T08:00:00Z",
+    "hrv": 68.9,
+    "sleep_quality": 86.5,
+    "activity_level": 72.0,
+    "subjective_recovery": 81.3,
+    "notes": "Back to normal training load",
+    "metadata": {
+      "source": "whoop",
+      "device_id": "WH-12345",
+      "version": "1.0"
+    }
+  }
+]
