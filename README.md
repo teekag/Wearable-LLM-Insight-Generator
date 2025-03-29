@@ -10,14 +10,18 @@ The Wearable Data Insight Generator transforms raw physiological data from weara
 
 ### Key Features
 
+- **Automated Data Syncing**: Seamlessly connect and sync data from physical wearable devices and third-party platforms
+- **Device Integration Framework**: Support for WHOOP, Fitbit, Garmin, Apple Health, and other wearables
+- **OAuth Authentication**: Secure API connections with major fitness platforms
+- **Universal Tracker Adapter**: Normalize data across different device formats
 - **Temporal Feature Fusion**: Extracts patterns across multiple biometric data streams
 - **Personalized Insight Generation**: Tailors recommendations based on user goals and history
 - **Modular LLM Integration**: Supports OpenAI, Mistral, and Gemini models
 - **Interactive Visualization**: Dashboard for exploring health metrics and insights
-- **Time-Series Insight Timeline**: Interactive visualizations of wearable data with AI-generated insights
 - **Coaching Agent Interface**: Conversational UI for personalized guidance
 - **API-First Architecture**: RESTful endpoints for seamless integration
 - **Extensible Framework**: Easily add new data sources and insight types
+- **Demo Mode**: Test the system with realistic synthetic data without requiring actual devices
 
 ## Model Architecture
 
@@ -93,41 +97,55 @@ The Wearable Data Insight Generator has been rigorously evaluated across multipl
 - **Without User History**: 18% reduction in personalization
 - **Without Domain Adaptation**: 31% decrease in relevance
 
+## Data Syncing Features
+
+The system supports multiple methods for obtaining wearable device data:
+
+### OAuth Provider Integration
+- **Supported Platforms**: Fitbit, Google Fit, Garmin, WHOOP, and Apple Health
+- **Authentication Flow**: Secure OAuth2 implementation with token management
+- **Data Retrieval**: Automated fetching of heart rate, sleep, activity, and more
+- **Refresh Mechanism**: Background token refresh and scheduled data syncing
+- **Apple Health Integration**: Special handling for Apple Health exports via iOS app
+
+### Physical Device Detection
+- **Web Bluetooth**: Direct connection to BLE-enabled wearables
+- **WebUSB**: Connection to USB-connected devices
+- **Auto-Detection**: Scanning for available devices and data formats
+- **Real-Time Syncing**: Stream data directly from connected devices
+- **Multi-Device Support**: Connect to multiple wearables simultaneously
+
+### Universal Data Adapter
+- **Format Normalization**: Convert device-specific formats to unified schema
+- **Cross-Device Compatibility**: Support for Fitbit, WHOOP, Garmin, Apple Health, Oura Ring
+- **Data Validation**: Schema enforcement and data quality checks
+- **Historical Import**: Batch processing of historical data dumps
+- **Conflict Resolution**: Smart merging of data from multiple sources
+
 ## Time-Series Insight Timeline
 
-The Time-Series Insight Timeline is a comprehensive visualization component that enables users to visualize their wearable data trends alongside AI-generated insights.
+The Time-Series Insight Timeline is a powerful visualization feature that helps users understand their health metrics over time and how insights relate to their data patterns.
 
-![Timeline Visualization](screenshots/timeline_static.png)
+### Key Components
+1. **Interactive Timeline** - Web-based visualizations with zoom, tooltips, and time range selection
+2. **Metric Correlation Analysis** - Visualize relationships between different health metrics
+3. **Timeline Integration** - Connects the visualization components with the insight engine and simulator
 
 ### Features
-
 - **Static and Interactive Visualizations**: Both matplotlib-based static plots and Plotly-based interactive web visualizations
 - **Metric Correlation Analysis**: Visualize relationships between different health metrics
 - **Insight Distribution Analysis**: Analyze the distribution of different insight types over time
 - **Scenario Comparison**: Compare different simulation scenarios (e.g., overtraining vs. recovery)
 
-### Interactive Components
-
-The interactive timeline provides rich web-based visualizations with:
-
-- **Zoom and Pan**: Focus on specific time periods of interest
-- **Time Range Selection**: Quickly switch between different time ranges (7 days, 30 days, etc.)
-- **Hover Tooltips**: Get detailed information about metrics and insights
-- **Range Slider**: Navigate through the timeline with an interactive slider
-
-![Metric Correlations](screenshots/metric_correlations.png)
-
-### Integration with Insight Engine
-
-The timeline visualizer integrates seamlessly with the insight engine to display AI-generated insights at relevant points in time, helping users understand the relationship between their physiological data and the personalized recommendations.
-
-![Insight Distribution](screenshots/insight_distribution.png)
-
 ## Project Structure
 
 ```
 wearable-llm-insight-generator/
-├── data/                       # Sample datasets and test data
+├── data/
+│   ├── raw/             # Raw data from wearable devices
+│   │   └── diatrend/    # DiaTrend dataset files
+│   └── unified/         # Normalized data in standard schema
+│       └── schema.json  # Unified data schema definition
 ├── docs/                       # Documentation files
 │   ├── api_reference.md        # API documentation
 │   ├── user_guide.md           # User guide
@@ -144,12 +162,23 @@ wearable-llm-insight-generator/
 │   ├── insight_prompt_builder.py # Prompt construction for LLMs
 │   ├── llm_engine.py           # LLM integration layer
 │   ├── agent_simulator.py      # Coaching agent simulation
-│   ├── simulator_engine.py     # Interactive insight simulator
-│   ├── demo_data_generator.py  # Synthetic data generation
+│   ├── device_detection.py     # Physical device detection and syncing
+│   ├── data_sync_manager.py    # Manages data synchronization processes
+│   ├── device_sync_simulator.py # Simulates device syncing for testing
+│   ├── demo_data_generator.py  # Synthetic data generation for demo mode
+│   ├── universal_data_adapter.py # Normalize data from various sources
+│   ├── user_profile_manager.py # Manages user profiles and preferences
+│   ├── oauth_providers/        # OAuth integration for wearable platforms
+│   │   ├── __init__.py         # Provider registry
+│   │   ├── fitbit_provider.py  # Fitbit OAuth and data fetching
+│   │   ├── google_fit_provider.py # Google Fit OAuth and data fetching
+│   │   ├── garmin_provider.py  # Garmin OAuth and data fetching
+│   │   ├── whoop_provider.py   # WHOOP OAuth and data fetching
+│   │   └── apple_health_provider.py # Apple Health data integration
 │   └── visualization/          # Visualization components
-│       ├── timeline_visualizer.py    # Static timeline visualization
-│       ├── timeline_interactive.py   # Interactive timeline visualization
-│       └── timeline_integration.py   # Integration with other components
+│       ├── timeline_visualizer.py  # Static timeline visualizations
+│       ├── timeline_interactive.py # Interactive timeline visualizations
+│       └── timeline_integration.py # Integration with other components
 ```
 
 ## Usage Examples
