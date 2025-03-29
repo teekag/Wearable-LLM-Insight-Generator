@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Wearable Insight Generator{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2">Your Body. Your Data. Smarter.</h1>
+    <p class="text-gray-600">Personalized insights based on your wearable data.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- HRV Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition hover:scale-105">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Recovery (HRV)</h3>
+                <span class="text-yellow-500">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+            </div>
+            <div class="flex items-end space-x-2 mb-2">
+                <span class="text-4xl font-bold">58</span>
+                <span class="text-red-500 text-sm flex items-center">
+                    <i class="fas fa-arrow-down mr-1"></i>12%
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <span class="ml-2 text-sm text-gray-500">Low</span>
+            </div>
+            <p class="mt-3 text-sm text-gray-600">⚠️ Low recovery detected. Consider a rest day.</p>
+        </div>
+    </div>
+
+    <!-- Sleep Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition hover:scale-105">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Sleep Quality</h3>
+                <span class="text-green-500">
+                    <i class="fas fa-check-circle"></i>
+                </span>
+            </div>
+            <div class="flex items-end space-x-2 mb-2">
+                <span class="text-4xl font-bold">7.8h</span>
+                <span class="text-green-500 text-sm flex items-center">
+                    <i class="fas fa-arrow-up mr-1"></i>5%
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                </div>
+                <span class="ml-2 text-sm text-gray-500">Optimal</span>
+            </div>
+            <p class="mt-3 text-sm text-gray-600">👍 Great sleep! REM sleep increased to 2.3h.</p>
+        </div>
+    </div>
+
+    <!-- Activity Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden transform transition hover:scale-105">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Activity</h3>
+                <span class="text-blue-500">
+                    <i class="fas fa-balance-scale"></i>
+                </span>
+            </div>
+            <div class="flex items-end space-x-2 mb-2">
+                <span class="text-4xl font-bold">10.4k</span>
+                <span class="text-gray-500 text-sm flex items-center">
+                    <i class="fas fa-equals mr-1"></i>2%
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-500 h-2.5 rounded-full" style="width: 65%"></div>
+                </div>
+                <span class="ml-2 text-sm text-gray-500">Balanced</span>
+            </div>
+            <p class="mt-3 text-sm text-gray-600">🚶 Consistent activity level maintained.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly Progress Ring -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Weekly Optimization</h2>
+    <div class="flex flex-col md:flex-row items-center">
+        <div class="relative w-48 h-48 mb-4 md:mb-0 md:mr-6">
+            <canvas id="progressRing" width="200" height="200"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                <span class="text-3xl font-bold">72%</span>
+                <span class="text-sm text-gray-500">Optimized</span>
+            </div>
+        </div>
+        <div class="flex-1">
+            <h3 class="text-lg font-medium mb-2">Your Week at a Glance</h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-sm">5 days of consistent sleep (7+ hours)</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                    <span class="text-sm">HRV trending down after Tuesday's workout</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                    <span class="text-sm">Activity levels well-balanced with recovery</span>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                <p class="text-sm text-indigo-800">
+                    <i class="fas fa-lightbulb text-indigo-600 mr-2"></i>
+                    <strong>Auto-goal:</strong> You've hit 5 days of consistent recovery. New challenge: Maintain for 2 more days!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Insight Timeline -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Insight Timeline</h2>
+        <div class="flex space-x-2">
+            <button class="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition">7d</button>
+            <button class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">30d</button>
+            <button class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">Custom</button>
+        </div>
+    </div>
+    <div id="timelineChart" class="w-full h-96"></div>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+            <div class="flex items-start">
+                <div class="bg-indigo-100 rounded-full p-2 mr-3">
+                    <i class="fas fa-lightbulb text-indigo-600"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-indigo-900">HRV dropped due to poor sleep quality</h4>
+                    <p class="text-sm text-indigo-700 mt-1">Your HRV decreased by 15% following two nights with less than 6 hours of sleep.</p>
+                    <div class="mt-2 flex items-center">
+                        <span class="text-xs text-indigo-500">Was this helpful?</span>
+                        <button class="ml-2 text-indigo-600 hover:text-indigo-800">
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                        <button class="ml-1 text-indigo-600 hover:text-indigo-800">
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+            <div class="flex items-start">
+                <div class="bg-green-100 rounded-full p-2 mr-3">
+                    <i class="fas fa-check text-green-600"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-green-900">Recovery improving after rest day</h4>
+                    <p class="text-sm text-green-700 mt-1">Your recovery score increased by 23% following yesterday's rest day.</p>
+                    <div class="mt-2 flex items-center">
+                        <span class="text-xs text-green-500">Was this helpful?</span>
+                        <button class="ml-2 text-green-600 hover:text-green-800">
+                            <i class="far fa-thumbs-up"></i>
+                        </button>
+                        <button class="ml-1 text-green-600 hover:text-green-800">
+                            <i class="far fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Conversational Coach -->
+<div class="bg-white rounded-xl shadow-md p-6">
+    <h2 class="text-xl font-semibold mb-4">Ask Your Coach</h2>
+    <div id="chatContainer" class="h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+        <div class="flex flex-col space-y-3">
+            <div class="flex items-start">
+                <div class="bg-indigo-100 rounded-full p-2 mr-2 flex-shrink-0">
+                    <i class="fas fa-robot text-indigo-600"></i>
+                </div>
+                <div class="bg-indigo-100 rounded-lg p-3 max-w-md">
+                    <p class="text-sm text-gray-800">Hi there! I'm your personal health coach. How can I help you today?</p>
+                </div>
+            </div>
+            <div class="flex items-start justify-end">
+                <div class="bg-gray-200 rounded-lg p-3 max-w-md">
+                    <p class="text-sm text-gray-800">Why did my recovery drop this week?</p>
+                </div>
+                <div class="bg-gray-300 rounded-full p-2 ml-2 flex-shrink-0">
+                    <i class="fas fa-user text-gray-600"></i>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="bg-indigo-100 rounded-full p-2 mr-2 flex-shrink-0">
+                    <i class="fas fa-robot text-indigo-600"></i>
+                </div>
+                <div class="bg-indigo-100 rounded-lg p-3 max-w-md">
+                    <p class="text-sm text-gray-800">Your HRV dropped 12% after 3 consecutive nights of &lt;6h sleep and back-to-back workouts. Consider a rest day and prioritize sleep tonight. Would you like me to suggest a recovery routine?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex">
+        <input type="text" id="chatInput" placeholder="Ask a question..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <button id="sendChatBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700 transition">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Progress Ring
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('progressRing').getContext('2d');
+        const progressRing = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [72, 28],
+                    backgroundColor: [
+                        'rgba(99, 102, 241, 0.8)',
+                        'rgba(229, 231, 235, 0.5)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                }
+            }
+        });
+    });
+
+    // Initialize Timeline Chart
+    document.addEventListener('DOMContentLoaded', function() {
+        // This would be replaced with actual data from your API
+        const timelineData = {
+            dates: ['2025-03-22', '2025-03-23', '2025-03-24', '2025-03-25', '2025-03-26', '2025-03-27', '2025-03-28'],
+            hrv: [65, 67, 62, 58, 52, 55, 58],
+            sleep: [7.2, 7.5, 6.8, 5.9, 5.7, 7.8, 7.5],
+            activity: [8500, 9200, 12000, 11500, 9800, 7500, 10400],
+            insights: [
+                {date: '2025-03-24', type: 'warning', text: 'High strain detected'},
+                {date: '2025-03-26', type: 'alert', text: 'Sleep quality decreased'},
+                {date: '2025-03-27', type: 'positive', text: 'Recovery improving'},
+                {date: '2025-03-28', type: 'info', text: 'Activity balanced'}
+            ]
+        };
+        
+        // Create traces for each metric
+        const traces = [
+            {
+                x: timelineData.dates,
+                y: timelineData.hrv,
+                name: 'HRV',
+                line: {color: '#3B82F6', width: 3},
+                yaxis: 'y'
+            },
+            {
+                x: timelineData.dates,
+                y: timelineData.sleep,
+                name: 'Sleep (hours)',
+                line: {color: '#8B5CF6', width: 3},
+                yaxis: 'y2'
+            },
+            {
+                x: timelineData.dates,
+                y: timelineData.activity,
+                name: 'Activity (steps)',
+                line: {color: '#10B981', width: 3},
+                yaxis: 'y3'
+            }
+        ];
+        
+        // Add insight markers
+        timelineData.insights.forEach(insight => {
+            let color = '#3B82F6';
+            if (insight.type === 'warning') color = '#F59E0B';
+            if (insight.type === 'alert') color = '#EF4444';
+            if (insight.type === 'positive') color = '#10B981';
+            
+            traces.push({
+                x: [insight.date],
+                y: [timelineData.hrv[timelineData.dates.indexOf(insight.date)]],
+                mode: 'markers',
+                marker: {
+                    size: 12,
+                    color: color,
+                    symbol: 'circle',
+                    line: {
+                        color: 'white',
+                        width: 2
+                    }
+                },
+                showlegend: false,
+                hoverinfo: 'text',
+                text: insight.text,
+                yaxis: 'y'
+            });
+        });
+        
+        // Layout configuration
+        const layout = {
+            grid: {
+                rows: 3,
+                columns: 1,
+                pattern: 'independent',
+                roworder: 'top to bottom'
+            },
+            yaxis: {
+                title: 'HRV',
+                titlefont: {color: '#3B82F6'},
+                tickfont: {color: '#3B82F6'}
+            },
+            yaxis2: {
+                title: 'Sleep (hours)',
+                titlefont: {color: '#8B5CF6'},
+                tickfont: {color: '#8B5CF6'}
+            },
+            yaxis3: {
+                title: 'Activity (steps)',
+                titlefont: {color: '#10B981'},
+                tickfont: {color: '#10B981'}
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                t: 20,
+                b: 50
+            },
+            hovermode: 'closest',
+            showlegend: true,
+            legend: {
+                orientation: 'h',
+                y: -0.2
+            }
+        };
+        
+        // Create the plot
+        Plotly.newPlot('timelineChart', traces, layout, {responsive: true});
+    });
+
+    // Sync Button Functionality
+    document.getElementById('syncBtn').addEventListener('click', function() {
+        document.getElementById('syncModal').classList.remove('hidden');
+        simulateSyncProgress();
+    });
+
+    document.getElementById('cancelSyncBtn').addEventListener('click', function() {
+        document.getElementById('syncModal').classList.add('hidden');
+    });
+
+    // Chat Functionality
+    document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendChatMessage();
+        }
+    });
+
+    function sendChatMessage() {
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value.trim();
+        
+        if (message) {
+            // Add user message to chat
+            const chatContainer = document.getElementById('chatContainer');
+            const userMessageHTML = `
+                <div class="flex items-start justify-end">
+                    <div class="bg-gray-200 rounded-lg p-3 max-w-md">
+                        <p class="text-sm text-gray-800">${message}</p>
+                    </div>
+                    <div class="bg-gray-300 rounded-full p-2 ml-2 flex-shrink-0">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.querySelector('.flex-col').insertAdjacentHTML('beforeend', userMessageHTML);
+            chatInput.value = '';
+            
+            // Simulate response (in a real app, this would be an API call)
+            setTimeout(() => {
+                simulateChatResponse();
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 1000);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+
+    function simulateChatResponse() {
+        const responses = [
+            "Based on your data, I recommend focusing on sleep quality tonight. Try to get at least 8 hours.",
+            "Your recovery is improving! Keep up the balanced activity and good sleep habits.",
+            "I notice your HRV tends to drop after high-intensity workouts. Consider adding an extra recovery day.",
+            "Your sleep patterns show disruption around 2-3 AM. Limiting screen time before bed might help."
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        const chatContainer = document.getElementById('chatContainer');
+        
+        const botMessageHTML = `
+            <div class="flex items-start">
+                <div class="bg-indigo-100 rounded-full p-2 mr-2 flex-shrink-0">
+                    <i class="fas fa-robot text-indigo-600"></i>
+                </div>
+                <div class="bg-indigo-100 rounded-lg p-3 max-w-md">
+                    <p class="text-sm text-gray-800">${randomResponse}</p>
+                </div>
+            </div>
+        `;
+        
+        chatContainer.querySelector('.flex-col').insertAdjacentHTML('beforeend', botMessageHTML);
+    }
+
+    function simulateSyncProgress() {
+        const progressBar = document.getElementById('syncProgress');
+        const statusText = document.getElementById('syncStatus');
+        let width = 0;
+        
+        const statuses = [
+            "Found Apple Watch nearby – syncing last 7 days of recovery data...",
+            "Downloading heart rate data...",
+            "Processing sleep metrics...",
+            "Analyzing activity patterns...",
+            "Generating insights...",
+            "Finalizing sync..."
+        ];
+        
+        let currentStatus = 0;
+        statusText.textContent = statuses[currentStatus];
+        
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                document.getElementById('syncModal').classList.add('hidden');
+                
+                // Update the last synced time
+                const deviceStatus = document.getElementById('deviceStatus');
+                deviceStatus.querySelector('span:last-child').textContent = "Apple Watch Connected | Last synced just now";
+                
+                // Show a success notification
+                showNotification("Sync completed successfully!");
+            } else {
+                width += 2;
+                progressBar.style.width = width + "%";
+                
+                // Update status text at certain points
+                if (width === 20) {
+                    currentStatus = 1;
+                    statusText.textContent = statuses[currentStatus];
+                } else if (width === 40) {
+                    currentStatus = 2;
+                    statusText.textContent = statuses[currentStatus];
+                } else if (width === 60) {
+                    currentStatus = 3;
+                    statusText.textContent = statuses[currentStatus];
+                } else if (width === 80) {
+                    currentStatus = 4;
+                    statusText.textContent = statuses[currentStatus];
+                } else if (width === 90) {
+                    currentStatus = 5;
+                    statusText.textContent = statuses[currentStatus];
+                }
+            }
+        }, 50);
+    }
+
+    function showNotification(message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-500 translate-x-full opacity-0 z-50';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full', 'opacity-0');
+        }, 100);
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 3000);
+    }
+
+    // User menu toggle
+    document.getElementById('userMenuBtn').addEventListener('click', function() {
+        document.getElementById('userMenu').classList.toggle('hidden');
+    });
+
+    // Close user menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const userMenu = document.getElementById('userMenu');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        
+        if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+            userMenu.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

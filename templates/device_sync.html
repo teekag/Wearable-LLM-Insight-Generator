@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Device Sync | Wearable Insight Generator{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold mb-2">Connect Your Wearable Device</h1>
+        <p class="text-gray-600">Sync your wearable data to get personalized insights and recommendations.</p>
+    </div>
+
+    <!-- Device Selection Tabs -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="flex" aria-label="Tabs">
+                <button class="px-6 py-4 text-indigo-600 border-b-2 border-indigo-600 font-medium text-sm" aria-current="page">
+                    Auto-Detect
+                </button>
+                <button class="px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                    Apple Health
+                </button>
+                <button class="px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                    Fitbit
+                </button>
+                <button class="px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                    Garmin
+                </button>
+                <button class="px-6 py-4 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                    Google Fit
+                </button>
+            </nav>
+        </div>
+
+        <!-- Auto-Detect Content -->
+        <div class="p-6">
+            <div class="flex flex-col items-center justify-center py-8">
+                <div class="mb-6 relative">
+                    <div class="w-32 h-32 rounded-full bg-indigo-50 flex items-center justify-center">
+                        <i class="fas fa-search text-indigo-600 text-4xl"></i>
+                    </div>
+                    <div class="absolute inset-0 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Scanning for Nearby Devices</h2>
+                <p class="text-gray-600 mb-6 text-center">Make sure your wearable device is nearby and Bluetooth is enabled on your phone.</p>
+                
+                <!-- Found Devices -->
+                <div class="w-full max-w-md">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-3">FOUND DEVICES</h3>
+                    
+                    <!-- Apple Watch -->
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                                    <i class="fab fa-apple text-gray-800"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Apple Watch Series 7</h4>
+                                    <p class="text-xs text-gray-500">Last synced: 2 hours ago</p>
+                                </div>
+                            </div>
+                            <button id="connectAppleWatch" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">
+                                Connect
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Fitbit -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-heartbeat text-gray-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Fitbit Sense</h4>
+                                    <p class="text-xs text-gray-500">Never connected</p>
+                                </div>
+                            </div>
+                            <button class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition">
+                                Connect
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Garmin -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-stopwatch text-gray-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Garmin Forerunner</h4>
+                                    <p class="text-xs text-gray-500">Never connected</p>
+                                </div>
+                            </div>
+                            <button class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition">
+                                Connect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Connection -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4">Manual Connection</h2>
+            <p class="text-gray-600 mb-6">Can't find your device? Connect manually by selecting your device type and following the instructions.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Apple Health -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-md transition cursor-pointer">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <i class="fab fa-apple text-gray-800 text-xl"></i>
+                        </div>
+                        <h3 class="font-medium mb-1">Apple Health</h3>
+                        <p class="text-xs text-gray-500">Connect to Apple Health app</p>
+                    </div>
+                </div>
+                
+                <!-- Fitbit -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-md transition cursor-pointer">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <i class="fas fa-heartbeat text-gray-800 text-xl"></i>
+                        </div>
+                        <h3 class="font-medium mb-1">Fitbit</h3>
+                        <p class="text-xs text-gray-500">Connect via Fitbit account</p>
+                    </div>
+                </div>
+                
+                <!-- Garmin -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-md transition cursor-pointer">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <i class="fas fa-stopwatch text-gray-800 text-xl"></i>
+                        </div>
+                        <h3 class="font-medium mb-1">Garmin</h3>
+                        <p class="text-xs text-gray-500">Connect via Garmin Connect</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Sync Options -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4">Data Sync Options</h2>
+            <p class="text-gray-600 mb-6">Customize how your wearable data is synced and processed.</p>
+            
+            <div class="space-y-4">
+                <!-- Sync Frequency -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium">Sync Frequency</h3>
+                        <p class="text-sm text-gray-500">How often should we sync your data?</p>
+                    </div>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option>Real-time (when available)</option>
+                        <option>Every hour</option>
+                        <option>Every 6 hours</option>
+                        <option>Daily</option>
+                        <option>Manual only</option>
+                    </select>
+                </div>
+                
+                <!-- Data History -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-medium">Initial Data Import</h3>
+                        <p class="text-sm text-gray-500">How much historical data to import?</p>
+                    </div>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                        <option>Last 12 months</option>
+                        <option>All available data</option>
+                    </select>
+                </div>
+                
+                <!-- Metrics to Sync -->
+                <div>
+                    <h3 class="font-medium mb-2">Metrics to Sync</h3>
+                    <p class="text-sm text-gray-500 mb-3">Select which metrics you want to sync from your device.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="heartRate" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="heartRate" class="ml-2 text-sm text-gray-700">Heart Rate & HRV</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="sleep" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="sleep" class="ml-2 text-sm text-gray-700">Sleep Data</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="activity" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="activity" class="ml-2 text-sm text-gray-700">Activity & Steps</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="workouts" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="workouts" class="ml-2 text-sm text-gray-700">Workouts</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="stress" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="stress" class="ml-2 text-sm text-gray-700">Stress Levels</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="bodyMetrics" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="bodyMetrics" class="ml-2 text-sm text-gray-700">Body Metrics (weight, etc.)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Privacy Options -->
+                <div class="pt-4 border-t border-gray-200">
+                    <h3 class="font-medium mb-2">Privacy Options</h3>
+                    <p class="text-sm text-gray-500 mb-3">Control how your data is stored and processed.</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="anonymizeData" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="anonymizeData" class="ml-2 text-sm text-gray-700">Anonymize my data for research purposes</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="localProcessing" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" checked>
+                            <label for="localProcessing" class="ml-2 text-sm text-gray-700">Process data on my device when possible</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="deleteAfter" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="deleteAfter" class="ml-2 text-sm text-gray-700">Automatically delete data older than 1 year</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end">
+                <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg mr-3 hover:bg-gray-200 transition">
+                    Cancel
+                </button>
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                    Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connection Success Modal -->
+<div id="connectionSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Device Connected Successfully!</h3>
+            <p class="text-gray-600 mb-6">Your Apple Watch Series 7 is now connected. We're importing your data to generate personalized insights.</p>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div id="importProgress" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <p class="text-sm text-gray-500 mb-6" id="importStatus">Initializing data import...</p>
+            
+            <div class="flex justify-center">
+                <button id="viewDashboardBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                    View Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Connect Apple Watch button
+        document.getElementById('connectAppleWatch').addEventListener('click', function() {
+            // Show connection success modal
+            document.getElementById('connectionSuccessModal').classList.remove('hidden');
+            
+            // Simulate data import progress
+            simulateDataImport();
+        });
+        
+        // View Dashboard button
+        document.getElementById('viewDashboardBtn').addEventListener('click', function() {
+            // Redirect to dashboard (in a real app)
+            window.location.href = '/';
+        });
+        
+        function simulateDataImport() {
+            const progressBar = document.getElementById('importProgress');
+            const statusText = document.getElementById('importStatus');
+            let width = 0;
+            
+            const statuses = [
+                "Initializing data import...",
+                "Importing heart rate data...",
+                "Importing sleep metrics...",
+                "Importing activity data...",
+                "Importing workout history...",
+                "Analyzing data patterns...",
+                "Generating initial insights...",
+                "Finalizing setup..."
+            ];
+            
+            let currentStatus = 0;
+            statusText.textContent = statuses[currentStatus];
+            
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    statusText.textContent = "Data import complete! Your dashboard is ready.";
+                    
+                    // Enable the View Dashboard button
+                    document.getElementById('viewDashboardBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    width += 1;
+                    progressBar.style.width = width + "%";
+                    
+                    // Update status text at certain points
+                    if (width === 15) {
+                        currentStatus = 1;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 30) {
+                        currentStatus = 2;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 45) {
+                        currentStatus = 3;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 60) {
+                        currentStatus = 4;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 75) {
+                        currentStatus = 5;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 85) {
+                        currentStatus = 6;
+                        statusText.textContent = statuses[currentStatus];
+                    } else if (width === 95) {
+                        currentStatus = 7;
+                        statusText.textContent = statuses[currentStatus];
+                    }
+                }
+            }, 50);
+        }
+    });
+</script>
+{% endblock %}

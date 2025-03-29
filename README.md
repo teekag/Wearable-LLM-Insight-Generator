@@ -16,37 +16,47 @@ The Wearable Data Insight Generator transforms raw physiological data from weara
 - **Universal Tracker Adapter**: Normalize data across different device formats
 - **Temporal Feature Fusion**: Extracts patterns across multiple biometric data streams
 - **Personalized Insight Generation**: Tailors recommendations based on user goals and history
-- **Modular LLM Integration**: Supports OpenAI, Mistral, and Gemini models
+- **Local LLM Support**: Run cost-effective open-source models locally without API costs
+- **Modular LLM Integration**: Supports OpenAI, Mistral, Gemini, and local Hugging Face models
 - **Interactive Visualization**: Dashboard for exploring health metrics and insights
 - **Coaching Agent Interface**: Conversational UI for personalized guidance
 - **API-First Architecture**: RESTful endpoints for seamless integration
 - **Extensible Framework**: Easily add new data sources and insight types
 - **Demo Mode**: Test the system with realistic synthetic data without requiring actual devices
+- **Supabase Integration**: Complete data storage solution with user authentication and row-level security
 
 ## Model Architecture
 
 The Wearable Data Insight Generator uses a hybrid architecture combining feature engineering and LLM fine-tuning:
 
 ### Base Model Selection
-- **Foundation Model**: Mistral 7B (selected for its strong performance on biomedical tasks)
-- **Quantization**: GGUF 4-bit quantization for efficient deployment
+- **Foundation Models**: 
+  - **Cloud Options**: Mistral 7B, OpenAI GPT models, Google Gemini
+  - **Local Options**: TinyLlama 1.1B Chat, Phi-2, and other Hugging Face models
+- **Quantization**: GGUF 4-bit and 8-bit quantization for efficient local deployment
 - **Context Window**: 8K tokens to capture temporal patterns in health data
 
-### Fine-Tuning Approach
-- **Method**: LoRA (Low-Rank Adaptation) with rank=16, alpha=32
-- **Training Data**: 25,000 wearable data samples with expert annotations
-- **Domain Adaptation**: Specialized on health metrics interpretation
-- **Hyperparameters**: Learning rate=2e-4, epochs=3, batch size=4
+## LLM Engine Features
 
-### Input Processing
-- **Feature Engineering**: Temporal patterns extraction from raw metrics
-- **Context Building**: User history + current metrics + goals
-- **Prompt Structure**: Standardized templates with metric placeholders
+The LLM Engine provides flexible options for generating insights from wearable data:
 
-### Output Generation
-- **Response Format**: Structured JSON with insight categories
-- **Confidence Scoring**: Uncertainty quantification for each insight
-- **Recommendation Prioritization**: Based on user goals and metric significance
+### Cloud Provider Support
+- **OpenAI Integration**: Support for GPT-3.5 and GPT-4 models
+- **Mistral Integration**: Support for Mistral's hosted API
+- **Google Gemini**: Support for Google's Gemini models
+
+### Local Model Support
+- **Hugging Face Integration**: Run open-source models locally without API costs
+- **Default Local Model**: TinyLlama 1.1B Chat for efficient local inference
+- **Model Caching**: Automatic caching of models for improved performance
+- **Quantization Options**: 4-bit and 8-bit quantization for memory efficiency
+- **Device Selection**: Automatic GPU/CPU selection based on available hardware
+- **Fallback Mechanism**: Graceful fallback to cloud providers if local inference fails
+
+### Provider Switching
+- **Dynamic Provider Selection**: Switch between providers at runtime
+- **Default Provider Configuration**: Set preferred provider in configuration
+- **Cost Optimization**: Use local models for routine insights, cloud for complex analysis
 
 ## Training Pipeline
 
@@ -122,6 +132,36 @@ The system supports multiple methods for obtaining wearable device data:
 - **Historical Import**: Batch processing of historical data dumps
 - **Conflict Resolution**: Smart merging of data from multiple sources
 
+## Data Storage Features
+
+The system uses Supabase as a robust backend for storing all wearable data, user profiles, and generated insights:
+
+### Database Schema
+- **User Management**: Secure user authentication with email and OAuth providers
+- **Device Connections**: Store OAuth tokens and device metadata for seamless syncing
+- **Metrics Storage**: Structured storage for daily and intraday wearable metrics
+- **Insight Management**: Store, categorize, and track user engagement with insights
+- **Row-Level Security**: Ensures users can only access their own data
+- **Real-time Subscriptions**: Live updates when new insights are generated
+
+### Repository Pattern
+- **Base Repository**: Generic CRUD operations for all data entities
+- **Specialized Repositories**: Custom logic for users, wearable metrics, and insights
+- **Service Layer**: Coordinated data operations across multiple repositories
+- **Adapter Pattern**: Seamless integration with existing components
+
+### Data Synchronization
+- **Batch Processing**: Efficient handling of large historical data imports
+- **Incremental Updates**: Smart syncing of only new or changed data
+- **Conflict Resolution**: Handling data overlaps from multiple sources
+- **Offline Support**: Queue operations when connectivity is limited
+
+### Security Features
+- **Environment-Based Configuration**: Secure management of API keys and endpoints
+- **Token Refresh**: Automatic handling of expired authentication tokens
+- **Data Encryption**: Secure storage of sensitive user information
+- **Audit Logging**: Track data access and modifications
+
 ## Time-Series Insight Timeline
 
 The Time-Series Insight Timeline is a powerful visualization feature that helps users understand their health metrics over time and how insights relate to their data patterns.
@@ -154,7 +194,8 @@ wearable-llm-insight-generator/
 ├── examples/                   # Example scripts
 │   ├── basic_usage.py          # Basic usage example
 │   ├── simulator_example.py    # Simulator usage example
-│   └── timeline_example.py     # Timeline visualization example
+│   ├── timeline_example.py     # Timeline visualization example
+│   └── supabase_example.py     # Supabase integration example
 ├── screenshots/                # Visualization screenshots
 ├── src/                        # Source code
 │   ├── feature_engineer.py     # Feature extraction from raw data
@@ -168,6 +209,19 @@ wearable-llm-insight-generator/
 │   ├── demo_data_generator.py  # Synthetic data generation for demo mode
 │   ├── universal_data_adapter.py # Normalize data from various sources
 │   ├── user_profile_manager.py # Manages user profiles and preferences
+│   ├── config/                 # Configuration files
+│   │   ├── supabase_config.py  # Supabase client configuration
+│   │   └── supabase_schema.sql # Database schema definition
+│   ├── data/                   # Data access layer
+│   │   └── repositories/       # Repository pattern implementation
+│   │       ├── base_repository.py        # Generic CRUD operations
+│   │       ├── user_repository.py        # User-specific operations
+│   │       ├── wearable_metrics_repository.py # Metrics operations
+│   │       └── insight_repository.py     # Insight operations
+│   ├── services/               # Service layer
+│   │   └── supabase_data_service.py # Coordinates repository operations
+│   ├── adapters/               # Adapter pattern implementation
+│   │   └── supabase_adapter.py # Integrates Supabase with existing components
 │   ├── oauth_providers/        # OAuth integration for wearable platforms
 │   │   ├── __init__.py         # Provider registry
 │   │   ├── fitbit_provider.py  # Fitbit OAuth and data fetching
@@ -179,6 +233,7 @@ wearable-llm-insight-generator/
 │       ├── timeline_visualizer.py  # Static timeline visualizations
 │       ├── timeline_interactive.py # Interactive timeline visualizations
 │       └── timeline_integration.py # Integration with other components
+├── .env.example                # Environment variables template
 ```
 
 ## Usage Examples
@@ -242,6 +297,58 @@ cd demo
 streamlit run streamlit_app.py
 ```
 
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/teekag/Wearable-Data-Insight-Generator.git
+   cd Wearable-Data-Insight-Generator
+   ```
+
+2. Create and activate a virtual environment:
+   ```
+   python -m venv wearable_venv
+   source wearable_venv/bin/activate  # On Windows: wearable_venv\Scripts\activate
+   ```
+
+3. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Set up environment variables:
+   ```
+   cp .env.example .env
+   ```
+   Edit the `.env` file with your configuration. Note that with local LLM support, you can now run the application without an OpenAI API key.
+
+5. Run the application:
+   ```
+   python app.py
+   ```
+
+6. Open your browser and navigate to:
+   ```
+   http://localhost:8000
+   ```
+
+## Configuration
+
+### LLM Provider Configuration
+
+The system supports multiple LLM providers that can be configured in the `.env` file:
+
+#### Cloud Providers (Optional)
+- **OpenAI**: Set `OPENAI_API_KEY` to use OpenAI models
+- **Mistral**: Set `MISTRAL_API_KEY` to use Mistral models
+- **Google**: Set `GOOGLE_API_KEY` to use Gemini models
+
+#### Local Models (Default)
+Local models require no API keys and run directly on your hardware:
+- Default model: TinyLlama 1.1B Chat
+- Automatically downloads and caches models from Hugging Face
+- Configure model options in `src/config/llm_config.py`
+
 ## Use Cases
 
 The Wearable Data Insight Generator can be applied in various contexts:
@@ -252,42 +359,6 @@ The Wearable Data Insight Generator can be applied in various contexts:
 4. **Wellness Monitoring**: Track overall health trends and suggest lifestyle adjustments
 5. **Research Companion**: Support researchers in analyzing wearable data patterns
 
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/teekag/Wearable-Data-Insight-Generator.git
-   cd Wearable-Data-Insight-Generator
-   ```
-
-2. Create a virtual environment:
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-4. Set up environment variables:
-   ```
-   export OPENAI_API_KEY=your_api_key  # On Windows: set OPENAI_API_KEY=your_api_key
-   ```
-
-5. Run the API server:
-   ```
-   cd api
-   uvicorn app:app --reload
-   ```
-
-6. Launch the demo application:
-   ```
-   cd demo
-   streamlit run streamlit_app.py
-   ```
-
 ## Future Enhancements
 
 - **Multi-Modal Integration**: Incorporate image data from fitness apps
@@ -295,6 +366,9 @@ The Wearable Data Insight Generator can be applied in various contexts:
 - **Continuous Learning**: Adaptive model that improves with user feedback
 - **Mobile App Integration**: Native mobile experience for real-time insights
 - **Personalized Treatment Plans**: Collaboration with healthcare providers
+- **Enhanced Data Analytics**: Advanced time-series analysis of stored wearable data
+- **Multi-User Insights**: Comparative analysis across user populations while preserving privacy
+- **Webhook Integrations**: Real-time notifications when new insights are generated
 
 ## Contributing
 

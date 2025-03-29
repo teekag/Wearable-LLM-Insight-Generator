@@ -223,7 +223,7 @@ class SupabaseDataService:
     
     async def get_user_data_for_visualization(self, user_id: str, days: int = 30) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
         """
-        Get user data for visualization.
+        Get user metrics and insights data for visualization.
         
         Args:
             user_id: The ID of the user
@@ -232,15 +232,146 @@ class SupabaseDataService:
         Returns:
             Tuple of (metrics_dataframe, insights_list)
         """
-        # Get metrics data
-        metrics_df = await self.metrics_repo.get_metrics_as_dataframe(user_id, days)
-        
-        # Get insights data
+        # Calculate date range
         end_date = date.today()
-        start_date = end_date - timedelta(days=days-1)
-        insights = await self.insight_repo.find_by_user_and_date_range(user_id, start_date, end_date)
+        start_date = end_date - timedelta(days=days)
+        
+        # Get metrics
+        metrics = await self.metrics_repo.find_by_user_and_date_range(
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+        # Get insights
+        insights = await self.insight_repo.find_by_user_and_date_range(
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+        # Convert metrics to DataFrame
+        if metrics:
+            metrics_df = pd.DataFrame(metrics)
+            # Ensure date column is datetime
+            metrics_df['date'] = pd.to_datetime(metrics_df['date'])
+            metrics_df.set_index('date', inplace=True)
+        else:
+            metrics_df = pd.DataFrame()
         
         return metrics_df, insights
+    
+    async def connect_device(self, user_id: str, device_type: str, device_name: str, 
+                            auth_token: str, refresh_token: str, token_expires_at: datetime,
+                            sync_settings: Dict[str, Any] = None) -> str:
+        """
+        Connect a wearable device to a user account.
+        
+        Args:
+            user_id: The ID of the user
+            device_type: Type of device (e.g., 'fitbit', 'garmin')
+            device_name: Name of the device
+            auth_token: OAuth authentication token
+            refresh_token: OAuth refresh token
+            token_expires_at: Token expiration datetime
+            sync_settings: Optional sync settings
+            
+        Returns:
+            ID of the connected device
+        """
+        from src.config.supabase_config import get_supabase_client
+        
+        # Get Supabase client
+        supabase = get_supabase_client()
+        
+        # Prepare device data
+        device_data = {
+            "user_id": user_id,
+            "device_type": device_type,
+            "device_name": device_name,
+            "auth_token": auth_token,
+            "refresh_token": refresh_token,
+            "token_expires_at": token_expires_at.isoformat(),
+            "is_active": True,
+            "sync_settings": sync_settings or {}
+        }
+        
+        # Insert device
+        result = supabase.table("connected_devices").insert(device_data).execute()
+        
+        if not result.data:
+            raise Exception("Failed to connect device")
+        
+        return result.data[0]["id"]
+    
+    async def list_user_devices(self, user_id: str) -> List[Dict[str, Any]]:
+        """
+        List all devices connected to a user account.
+        
+        Args:
+            user_id: The ID of the user
+            
+        Returns:
+            List of connected devices
+        """
+        from src.config.supabase_config import get_supabase_client
+        
+        # Get Supabase client
+        supabase = get_supabase_client()
+        
+        # Query devices
+        result = supabase.table("connected_devices").select("*").eq("user_id", user_id).execute()
+        
+        return result.data
+    
+    async def save_visualization(self, user_id: str, title: str, description: str,
+                                start_date: date, end_date: date, 
+                                metrics_included: List[str], insight_types_included: List[str],
+                                html_content: str) -> str:
+        """
+        Save a visualization to Supabase.
+        
+        Args:
+            user_id: The ID of the user
+            title: Title of the visualization
+            description: Description of the visualization
+            start_date: Start date of the data
+            end_date: End date of the data
+            metrics_included: List of metrics included in the visualization
+            insight_types_included: List of insight types included
+            html_content: HTML content of the visualization
+            
+        Returns:
+            ID of the saved visualization
+        """
+        from src.config.supabase_config import get_supabase_client
+        
+        # Get Supabase client
+        supabase = get_supabase_client()
+        
+        # Prepare visualization data
+        visualization_data = {
+            "user_id": user_id,
+            "title": title,
+            "description": description,
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "metrics_included": metrics_included,
+            "insight_types_included": insight_types_included,
+            "visualization_config": {
+                "type": "interactive_timeline",
+                "version": "1.0"
+            },
+            "html_content": html_content
+        }
+        
+        # Insert visualization
+        result = supabase.table("timeline_visualizations").insert(visualization_data).execute()
+        
+        if not result.data:
+            raise Exception("Failed to save visualization")
+        
+        return result.data[0]["id"]
     
     async def get_user_health_overview(self, user_id: str) -> Dict[str, Any]:
         """
@@ -292,13 +423,23 @@ class SupabaseDataService:
     
     def run_async(self, coroutine):
         """
-        Run an async coroutine synchronously.
+        Run an async coroutine and return the result.
         
         Args:
-            coroutine: The coroutine to run
+            coroutine: Async coroutine to run
             
         Returns:
-            The result of the coroutine
+            Result of the coroutine
         """
         loop = asyncio.get_event_loop()
-        return loop.run_until_complete(coroutine)
+        if loop.is_running():
+            # Create a new event loop if the current one is already running
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            try:
+                return new_loop.run_until_complete(coroutine)
+            finally:
+                new_loop.close()
+                asyncio.set_event_loop(loop)
+        else:
+            return loop.run_until_complete(coroutine)

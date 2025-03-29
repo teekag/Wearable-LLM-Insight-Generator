@@ -47,8 +47,19 @@ class LLMEngine:
                 "temperature": 0.7,
                 "max_tokens": 1000
             },
-            "default_provider": "openai"
+            "local": {
+                "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",  # Small model that works on most hardware
+                "temperature": 0.7,
+                "max_tokens": 1000,
+                "device": "auto",  # "cpu", "cuda", "mps", or "auto" to detect automatically
+                "quantization": "4bit",  # "4bit", "8bit", or None for full precision
+                "cache_dir": "./models"  # Directory to cache downloaded models
+            },
+            "default_provider": "local"  # Changed default to local
         }
+        
+        # Initialize model cache
+        self.models_cache = {}
         
         # Load custom configuration if provided
         if config_path:
@@ -76,7 +87,7 @@ class LLMEngine:
         
         Args:
             prompt: Dictionary with system and user prompts
-            provider: LLM provider to use (openai, mistral, gemini)
+            provider: LLM provider to use (openai, mistral, gemini, local)
             model: Specific model to use (overrides config)
             temperature: Temperature setting (overrides config)
             max_tokens: Maximum tokens to generate (overrides config)
@@ -86,7 +97,7 @@ class LLMEngine:
         """
         # Use default provider if not specified
         if not provider:
-            provider = self.config.get("default_provider", "openai")
+            provider = self.config.get("default_provider", "local")
             
         # Check if provider is supported
         if provider not in self.config:
@@ -104,11 +115,12 @@ class LLMEngine:
         if max_tokens:
             provider_config = {**provider_config, "max_tokens": max_tokens}
             
-        # Check for API key
-        api_key = provider_config.get("api_key", "")
-        if not api_key:
-            logger.error(f"No API key found for provider '{provider}'")
-            return "Error: Missing API key", {"error": "Missing API key"}
+        # Check for API key for cloud providers
+        if provider in ["openai", "mistral", "gemini"]:
+            api_key = provider_config.get("api_key", "")
+            if not api_key:
+                logger.error(f"No API key found for provider '{provider}'")
+                return "Error: Missing API key", {"error": "Missing API key"}
             
         # Generate based on provider
         if provider == "openai":
@@ -117,6 +129,8 @@ class LLMEngine:
             return self._generate_mistral(prompt, provider_config)
         elif provider == "gemini":
             return self._generate_gemini(prompt, provider_config)
+        elif provider == "local":
+            return self._generate_local(prompt, provider_config)
         else:
             logger.error(f"Provider '{provider}' implementation not found")
             return "Error: Provider implementation not found", {"error": "Implementation not found"}
@@ -258,19 +272,21 @@ class LLMEngine:
             # Configure client
             genai.configure(api_key=config["api_key"])
             
-            # Combine system and user prompts (Gemini doesn't have system prompt)
+            # Get model
+            model = genai.GenerativeModel(config["model"])
+            
+            # Combine prompts (Gemini has different API)
             combined_prompt = f"{prompt['system']}\n\n{prompt['user']}"
             
             # Make API call
             start_time = time.time()
-            model = genai.GenerativeModel(
-                model_name=config["model"],
+            response = model.generate_content(
+                combined_prompt,
                 generation_config={
                     "temperature": config["temperature"],
-                    "max_output_tokens": config["max_tokens"],
+                    "max_output_tokens": config["max_tokens"]
                 }
             )
-            response = model.generate_content(combined_prompt)
             end_time = time.time()
             
             # Extract response
@@ -286,7 +302,7 @@ class LLMEngine:
                 "timestamp": datetime.now().isoformat()
             }
             
-            logger.info(f"Generated Gemini response")
+            logger.info(f"Generated Gemini response in {metadata['latency_seconds']:.2f} seconds")
             return generated_text, metadata
             
         except ImportError:
@@ -295,122 +311,178 @@ class LLMEngine:
         except Exception as e:
             logger.error(f"Error generating Gemini response: {str(e)}")
             return f"Error: {str(e)}", {"error": str(e)}
-    
-    def save_response(self, 
-                     prompt: Dict[str, str], 
-                     response: str, 
-                     metadata: Dict[str, Any],
-                     output_dir: str,
-                     filename: Optional[str] = None) -> str:
+
+    def _generate_local(self, prompt: Dict[str, str], config: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
         """
-        Save prompt, response, and metadata to a JSON file.
+        Generate insights using local Hugging Face Transformers models.
         
         Args:
             prompt: Dictionary with system and user prompts
-            response: Generated response text
-            metadata: Response metadata
-            output_dir: Directory to save the output
-            filename: Optional filename (defaults to timestamp)
+            config: Local model configuration
             
         Returns:
-            Path to the saved file
+            Tuple of (generated text, metadata)
         """
-        # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # Generate filename if not provided
-        if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"insight_{timestamp}.json"
-            
-        # Ensure filename has .json extension
-        if not filename.endswith('.json'):
-            filename += '.json'
-            
-        # Prepare output data
-        output_data = {
-            "prompt": prompt,
-            "response": response,
-            "metadata": metadata
-        }
-        
-        # Save to file
-        output_path = os.path.join(output_dir, filename)
         try:
-            with open(output_path, 'w') as f:
-                json.dump(output_data, f, indent=2)
-            logger.info(f"Saved response to {output_path}")
-            return output_path
-        except Exception as e:
-            logger.error(f"Error saving response to {output_path}: {str(e)}")
-            return ""
-    
-    def batch_generate(self, 
-                      prompts: List[Dict[str, str]],
-                      provider: Optional[str] = None,
-                      output_dir: Optional[str] = None) -> List[Tuple[str, Dict[str, Any]]]:
-        """
-        Generate insights for multiple prompts.
-        
-        Args:
-            prompts: List of prompt dictionaries
-            provider: LLM provider to use
-            output_dir: Optional directory to save responses
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+            import torch
             
-        Returns:
-            List of (response, metadata) tuples
-        """
-        results = []
-        
-        for i, prompt in enumerate(prompts):
-            logger.info(f"Generating response for prompt {i+1}/{len(prompts)}")
+            model_id = config["model"]
+            cache_key = f"{model_id}_{config.get('quantization', 'none')}"
+            
+            # Determine device
+            if config.get("device", "auto") == "auto":
+                if torch.cuda.is_available():
+                    device = "cuda"
+                elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                    device = "mps"
+                else:
+                    device = "cpu"
+            else:
+                device = config.get("device", "cpu")
+                
+            logger.info(f"Using device: {device} for local model inference")
+            
+            # Load model and tokenizer from cache or initialize
+            if cache_key not in self.models_cache:
+                logger.info(f"Loading model {model_id} (this may take a while for the first run)")
+                
+                # Set up quantization if requested
+                quantization = config.get("quantization")
+                if quantization == "4bit":
+                    bnb_config = BitsAndBytesConfig(
+                        load_in_4bit=True,
+                        bnb_4bit_compute_dtype=torch.float16,
+                        bnb_4bit_quant_type="nf4"
+                    )
+                elif quantization == "8bit":
+                    bnb_config = BitsAndBytesConfig(
+                        load_in_8bit=True
+                    )
+                else:
+                    bnb_config = None
+                
+                # Load tokenizer and model
+                tokenizer = AutoTokenizer.from_pretrained(
+                    model_id, 
+                    cache_dir=config.get("cache_dir"),
+                    trust_remote_code=True
+                )
+                
+                if bnb_config:
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_id,
+                        quantization_config=bnb_config,
+                        device_map=device,
+                        cache_dir=config.get("cache_dir"),
+                        trust_remote_code=True
+                    )
+                else:
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_id,
+                        device_map=device,
+                        cache_dir=config.get("cache_dir"),
+                        trust_remote_code=True
+                    )
+                
+                # Cache the model and tokenizer
+                self.models_cache[cache_key] = (model, tokenizer)
+            else:
+                model, tokenizer = self.models_cache[cache_key]
+            
+            # Format prompt based on model type
+            if "llama" in model_id.lower():
+                # Llama 2/3 style prompt format
+                formatted_prompt = f"<s>[INST] <<SYS>>\n{prompt['system']}\n<</SYS>>\n\n{prompt['user']} [/INST]"
+            elif "mistral" in model_id.lower():
+                # Mistral style prompt format
+                formatted_prompt = f"<s>[INST] {prompt['system']}\n\n{prompt['user']} [/INST]"
+            elif "gemma" in model_id.lower():
+                # Gemma style prompt format
+                formatted_prompt = f"<start_of_turn>user\n{prompt['system']}\n{prompt['user']}<end_of_turn>\n<start_of_turn>model\n"
+            else:
+                # Generic chat format
+                formatted_prompt = f"System: {prompt['system']}\nUser: {prompt['user']}\nAssistant:"
+            
+            # Tokenize input
+            inputs = tokenizer(formatted_prompt, return_tensors="pt").to(device)
+            input_tokens = inputs.input_ids.shape[1]
             
             # Generate response
-            response, metadata = self.generate_insight(prompt, provider=provider)
-            results.append((response, metadata))
-            
-            # Save response if output directory provided
-            if output_dir:
-                self.save_response(
-                    prompt, 
-                    response, 
-                    metadata, 
-                    output_dir, 
-                    filename=f"batch_{i+1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            start_time = time.time()
+            with torch.no_grad():
+                outputs = model.generate(
+                    inputs.input_ids,
+                    max_new_tokens=config["max_tokens"],
+                    temperature=config["temperature"],
+                    do_sample=config["temperature"] > 0,
+                    pad_token_id=tokenizer.eos_token_id
                 )
+            end_time = time.time()
             
-            # Add small delay to avoid rate limiting
-            if i < len(prompts) - 1:
-                time.sleep(1)
-        
-        return results
+            # Decode and clean up response
+            full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            
+            # Extract just the model's response (remove the prompt)
+            if "Assistant:" in full_output:
+                generated_text = full_output.split("Assistant:", 1)[1].strip()
+            elif "[/INST]" in full_output:
+                generated_text = full_output.split("[/INST]", 1)[1].strip()
+            elif "<end_of_turn>" in full_output:
+                generated_text = full_output.split("<start_of_turn>model\n", 1)[1].split("<end_of_turn>", 1)[0].strip()
+            else:
+                # Just return everything after the prompt as a fallback
+                generated_text = full_output[len(formatted_prompt):].strip()
+            
+            # Calculate token counts
+            output_tokens = outputs.shape[1] - input_tokens
+            
+            # Prepare metadata
+            metadata = {
+                "provider": "local",
+                "model": model_id,
+                "temperature": config["temperature"],
+                "max_tokens": config["max_tokens"],
+                "device": device,
+                "quantization": config.get("quantization"),
+                "latency_seconds": end_time - start_time,
+                "timestamp": datetime.now().isoformat(),
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
+                "total_tokens": input_tokens + output_tokens
+            }
+            
+            logger.info(f"Generated local model response in {metadata['latency_seconds']:.2f} seconds")
+            return generated_text, metadata
+            
+        except ImportError:
+            logger.error("Required packages not installed. Install with 'pip install transformers torch accelerate bitsandbytes'")
+            return "Error: Required packages not installed", {"error": "Package not installed"}
+        except Exception as e:
+            logger.error(f"Error generating local model response: {str(e)}")
+            return f"Error: {str(e)}", {"error": str(e)}
 
 
 # Example usage
 if __name__ == "__main__":
     # Sample prompt
     sample_prompt = {
-        "system": "You are an expert fitness coach analyzing biometric data.",
-        "user": "Here's my recent HRV data:\n- Average RMSSD: 65.3\n- Sleep: 7.2 hours\n\nWhat insights can you provide?"
+        "system": "You are an AI assistant that analyzes health data and provides insights.",
+        "user": "My resting heart rate has increased from 60 to 68 over the past week. What might this indicate?"
     }
     
-    # Initialize LLM engine
-    llm_engine = LLMEngine()
+    # Initialize engine
+    engine = LLMEngine()
     
-    # Check if API key is set
-    if os.environ.get("OPENAI_API_KEY"):
-        # Generate insight
-        response, metadata = llm_engine.generate_insight(sample_prompt)
-        
-        print("=== GENERATED INSIGHT ===")
-        print(response)
-        print("\n=== METADATA ===")
-        print(json.dumps(metadata, indent=2))
-        
-        # Save response
-        llm_engine.save_response(sample_prompt, response, metadata, "../outputs")
-    else:
-        print("OpenAI API key not set. Please set the OPENAI_API_KEY environment variable.")
-        print("Example prompt that would be sent:")
-        print("System:", sample_prompt["system"])
-        print("User:", sample_prompt["user"])
+    # Generate insight using local model (default)
+    response, metadata = engine.generate_insight(sample_prompt)
+    print(f"Local model response: {response}")
+    print(f"Metadata: {metadata}")
+    
+    # You can also try different models
+    # For example, a smaller model that runs well on CPU:
+    response, metadata = engine.generate_insight(
+        sample_prompt, 
+        provider="local",
+        model="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    )

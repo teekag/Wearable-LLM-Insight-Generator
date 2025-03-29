@@ -99,53 +99,18 @@ async def generate_insights_from_metrics(user_id):
     
     return insights
 
-async def create_interactive_visualization(user_id):
-    """Create an interactive visualization of user data from Supabase."""
-    # Create data service
-    data_service = SupabaseDataService()
-    
-    # Get user data for visualization
-    metrics_df, insights = await data_service.get_user_data_for_visualization(user_id, days=30)
-    
-    if metrics_df.empty:
-        logger.error("No metrics data found for visualization")
-        return None
-    
-    # Create output directory
-    os.makedirs("outputs/supabase_example", exist_ok=True)
-    
-    # Create interactive timeline
-    timeline = InteractiveTimeline()
-    fig = timeline.create_interactive_timeline(
-        df=metrics_df,
-        insights=insights,
-        title="Wearable Data Insights from Supabase",
-        output_path="outputs/supabase_example/supabase_timeline.html"
-    )
-    
-    logger.info("Created interactive visualization at outputs/supabase_example/supabase_timeline.html")
-    
-    return fig
-
 async def run_simulation_with_supabase(user_id):
     """Run a simulation and store results in Supabase."""
     # Create simulator adapter
     simulator_adapter = SupabaseSimulatorAdapter(user_id)
     
-    # Initialize simulator from Supabase user data
-    success = simulator_adapter.initialize_simulator_from_supabase()
-    
-    if not success:
-        logger.error("Failed to initialize simulator from Supabase")
-        return None, None
-    
     # Run simulation and store results
     metrics_df, insights = simulator_adapter.run_simulation_and_store_results(
-        scenario_type="training_peak",
+        scenario_type="overtraining",
         days=14
     )
     
-    logger.info(f"Simulation completed with {len(metrics_df)} metrics records and {len(insights)} insights")
+    logger.info(f"Ran simulation with {len(metrics_df)} metrics and {len(insights)} insights")
     
     return metrics_df, insights
 
@@ -154,58 +119,183 @@ async def get_user_health_overview(user_id):
     # Create data service
     data_service = SupabaseDataService()
     
-    # Get health overview
-    overview = await data_service.get_user_health_overview(user_id)
+    # Get user data for visualization
+    metrics_df, insights = await data_service.get_user_data_for_visualization(user_id, days=30)
     
-    logger.info(f"Retrieved health overview for user {user_id}")
+    logger.info(f"Retrieved {len(metrics_df)} metrics and {len(insights)} insights for user {user_id}")
     
-    return overview
+    return metrics_df, insights
+
+async def create_and_save_visualization(user_id, metrics_df, insights):
+    """Create an interactive visualization and save it to Supabase."""
+    # Create interactive timeline
+    timeline = InteractiveTimeline()
+    
+    # Create visualization
+    fig = timeline.create_insight_timeline(
+        metrics_df=metrics_df,
+        insights=insights,
+        user_id=user_id,
+        metrics_to_show=["hrv_rmssd", "sleep_quality", "recovery_score", "strain"],
+        insight_types_to_show=["recovery", "sleep", "activity", "strain"]
+    )
+    
+    # Convert to HTML
+    html_content = fig.to_html(include_plotlyjs='cdn')
+    
+    # Save visualization to Supabase
+    data_service = SupabaseDataService()
+    visualization_id = await data_service.save_visualization(
+        user_id=user_id,
+        title="30-Day Health Overview",
+        description="Interactive visualization of health metrics and insights",
+        start_date=date.today() - timedelta(days=30),
+        end_date=date.today(),
+        metrics_included=["hrv_rmssd", "sleep_quality", "recovery_score", "strain"],
+        insight_types_included=["recovery", "sleep", "activity", "strain"],
+        html_content=html_content
+    )
+    
+    logger.info(f"Saved visualization with ID: {visualization_id}")
+    
+    return visualization_id
+
+async def demonstrate_oauth_integration(user_id):
+    """Demonstrate OAuth integration with wearable platforms."""
+    # In a real application, this would redirect to the OAuth provider's authorization page
+    # For this example, we'll just simulate the process
+    
+    data_service = SupabaseDataService()
+    
+    # Simulate connecting a Fitbit device
+    device_id = await data_service.connect_device(
+        user_id=user_id,
+        device_type="fitbit",
+        device_name="Fitbit Sense",
+        auth_token="simulated_auth_token",
+        refresh_token="simulated_refresh_token",
+        token_expires_at=datetime.now() + timedelta(days=30),
+        sync_settings={
+            "metrics_to_sync": ["heart_rate", "sleep", "activity"],
+            "sync_frequency": "daily"
+        }
+    )
+    
+    logger.info(f"Connected Fitbit device with ID: {device_id}")
+    
+    # List connected devices
+    devices = await data_service.list_user_devices(user_id)
+    logger.info(f"User has {len(devices)} connected devices")
+    
+    return devices
+
+async def demonstrate_repository_pattern(user_id):
+    """Demonstrate the repository pattern with direct repository access."""
+    from src.data.repositories.user_repository import UserRepository
+    from src.data.repositories.wearable_metrics_repository import WearableMetricsRepository
+    from src.data.repositories.insight_repository import InsightRepository
+    
+    # Create repositories
+    user_repo = UserRepository()
+    metrics_repo = WearableMetricsRepository()
+    insight_repo = InsightRepository()
+    
+    # Get user by ID
+    user = await user_repo.find_by_id(user_id)
+    logger.info(f"Retrieved user: {user['first_name']} {user['last_name']}")
+    
+    # Get latest metrics
+    latest_metrics = await metrics_repo.find_latest_by_user_id(user_id, limit=5)
+    logger.info(f"Retrieved {len(latest_metrics)} latest metrics")
+    
+    # Get insights by type
+    recovery_insights = await insight_repo.find_by_user_and_type(
+        user_id=user_id,
+        insight_type="recovery",
+        limit=3
+    )
+    logger.info(f"Retrieved {len(recovery_insights)} recovery insights")
+    
+    # Update user preferences
+    updated_user = await user_repo.update_user(
+        user_id=user_id,
+        updates={
+            "preferences": {
+                **user.get("preferences", {}),
+                "last_viewed_insight": recovery_insights[0]["id"] if recovery_insights else None
+            }
+        }
+    )
+    
+    logger.info(f"Updated user preferences")
+    
+    return {
+        "user": user,
+        "latest_metrics": latest_metrics,
+        "recovery_insights": recovery_insights
+    }
 
 async def main():
     """Main function to run the example."""
     try:
-        # Check if Supabase is configured
-        supabase = get_supabase_client()
-        logger.info("Supabase client initialized successfully")
+        logger.info("Starting Supabase integration example")
         
-        # Create demo user
+        # Step 1: Create a demo user
+        logger.info("Step 1: Creating demo user")
         user_id = await create_demo_user()
         
-        # Generate and store demo data
-        time_series_data = await generate_and_store_demo_data(user_id)
+        # Step 2: Generate and store demo data
+        logger.info("Step 2: Generating and storing demo data")
+        metrics_df = await generate_and_store_demo_data(user_id)
         
-        # Generate insights
+        # Step 3: Generate insights from metrics
+        logger.info("Step 3: Generating insights from metrics")
         insights = await generate_insights_from_metrics(user_id)
         
-        # Create visualization
-        fig = await create_interactive_visualization(user_id)
-        
-        # Run simulation
+        # Step 4: Run a simulation with Supabase
+        logger.info("Step 4: Running simulation with Supabase")
         sim_metrics, sim_insights = await run_simulation_with_supabase(user_id)
         
-        # Get health overview
-        overview = await get_user_health_overview(user_id)
+        # Step 5: Get user health overview
+        logger.info("Step 5: Getting user health overview")
+        overview_metrics, overview_insights = await get_user_health_overview(user_id)
         
-        # Print health overview
-        print("\n=== User Health Overview ===")
-        print(f"Status: {overview['status']}")
-        print("\nLatest Metrics:")
-        for metric, value in overview['metrics'].items():
-            if value is not None:
-                print(f"  • {metric}: {value}")
+        # Step 6: Create and save visualization
+        logger.info("Step 6: Creating and saving visualization")
+        visualization_id = await create_and_save_visualization(
+            user_id, overview_metrics, overview_insights
+        )
         
-        print("\nTrends:")
-        for metric, trend in overview['trends'].items():
-            print(f"  • {metric}: {trend}")
+        # Step 7: Demonstrate OAuth integration
+        logger.info("Step 7: Demonstrating OAuth integration")
+        devices = await demonstrate_oauth_integration(user_id)
         
-        print("\nRecent Insights:")
-        for insight in overview['insights'][:3]:  # Show top 3 insights
-            print(f"  • {insight['title']}: {insight['summary']}")
+        # Step 8: Demonstrate repository pattern
+        logger.info("Step 8: Demonstrating repository pattern")
+        repo_results = await demonstrate_repository_pattern(user_id)
         
-        print("\nVisualization available at: outputs/supabase_example/supabase_timeline.html")
+        logger.info("Supabase integration example completed successfully")
+        
+        # Print summary
+        print("\n=== Supabase Integration Example Summary ===")
+        print(f"Demo User ID: {user_id}")
+        print(f"Metrics Generated: {len(metrics_df)}")
+        print(f"Insights Generated: {len(insights)}")
+        print(f"Simulation Metrics: {len(sim_metrics)}")
+        print(f"Simulation Insights: {len(sim_insights)}")
+        print(f"Visualization Created: {visualization_id}")
+        print(f"Connected Devices: {len(devices)}")
+        print("===========================================\n")
+        
+        # Instructions for next steps
+        print("Next Steps:")
+        print("1. Create a Supabase project at https://supabase.com")
+        print("2. Run the schema SQL in the Supabase SQL Editor")
+        print("3. Configure your .env file with Supabase credentials")
+        print("4. Run this example again to see the full integration in action")
         
     except Exception as e:
-        logger.error(f"Error in Supabase example: {str(e)}")
+        logger.error(f"Error in main function: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

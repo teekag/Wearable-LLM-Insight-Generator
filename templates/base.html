@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Wearable Insight Generator{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <nav class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-heartbeat text-2xl"></i>
+                <span class="text-xl font-bold">Wearable Insight Generator</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="deviceStatus" class="text-sm bg-indigo-700 py-1 px-3 rounded-full flex items-center">
+                    <span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-2 pulse-animation"></span>
+                    <span>Apple Watch Connected | Last synced 5 mins ago</span>
+                </div>
+                <button id="syncBtn" class="bg-white text-indigo-600 px-3 py-1 rounded-full text-sm hover:bg-indigo-100 transition">
+                    <i class="fas fa-sync-alt mr-1"></i> Sync Now
+                </button>
+                <div class="relative">
+                    <button id="userMenuBtn" class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden z-10">
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100">Profile</a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100">Settings</a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-indigo-100">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="bg-gray-100 border-t border-gray-200 py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            &copy; 2025 Wearable Insight Generator | Powered by Supabase
+        </div>
+    </footer>
+
+    <!-- Sync Modal -->
+    <div id="syncModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Syncing with your device</h3>
+                <p class="text-gray-600 mb-4" id="syncStatus">Found Apple Watch nearby – syncing last 7 days of recovery data...</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div id="syncProgress" class="bg-indigo-600 h-2.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <button id="cancelSyncBtn" class="text-gray-500 hover:text-gray-700">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
