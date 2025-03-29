@@ -14,6 +14,7 @@ The Wearable Data Insight Generator transforms raw physiological data from weara
 - **Personalized Insight Generation**: Tailors recommendations based on user goals and history
 - **Modular LLM Integration**: Supports OpenAI, Mistral, and Gemini models
 - **Interactive Visualization**: Dashboard for exploring health metrics and insights
+- **Time-Series Insight Timeline**: Interactive visualizations of wearable data with AI-generated insights
 - **Coaching Agent Interface**: Conversational UI for personalized guidance
 - **API-First Architecture**: RESTful endpoints for seamless integration
 - **Extensible Framework**: Easily add new data sources and insight types
@@ -92,35 +93,63 @@ The Wearable Data Insight Generator has been rigorously evaluated across multipl
 - **Without User History**: 18% reduction in personalization
 - **Without Domain Adaptation**: 31% decrease in relevance
 
-## System Architecture
+## Time-Series Insight Timeline
+
+The Time-Series Insight Timeline is a comprehensive visualization component that enables users to visualize their wearable data trends alongside AI-generated insights.
+
+![Timeline Visualization](screenshots/timeline_static.png)
+
+### Features
+
+- **Static and Interactive Visualizations**: Both matplotlib-based static plots and Plotly-based interactive web visualizations
+- **Metric Correlation Analysis**: Visualize relationships between different health metrics
+- **Insight Distribution Analysis**: Analyze the distribution of different insight types over time
+- **Scenario Comparison**: Compare different simulation scenarios (e.g., overtraining vs. recovery)
+
+### Interactive Components
+
+The interactive timeline provides rich web-based visualizations with:
+
+- **Zoom and Pan**: Focus on specific time periods of interest
+- **Time Range Selection**: Quickly switch between different time ranges (7 days, 30 days, etc.)
+- **Hover Tooltips**: Get detailed information about metrics and insights
+- **Range Slider**: Navigate through the timeline with an interactive slider
+
+![Metric Correlations](screenshots/metric_correlations.png)
+
+### Integration with Insight Engine
+
+The timeline visualizer integrates seamlessly with the insight engine to display AI-generated insights at relevant points in time, helping users understand the relationship between their physiological data and the personalized recommendations.
+
+![Insight Distribution](screenshots/insight_distribution.png)
+
+## Project Structure
 
 ```
-wearable-data-insight-generator/
-├── data/
-│   ├── raw/             # Raw data from wearable devices
-│   │   └── diatrend/    # DiaTrend dataset files
-│   └── unified/         # Normalized data in standard schema
-├── src/
-│   ├── data_utils.py            # Data processing utilities
-│   ├── feature_engineer.py      # Feature extraction from raw data
-│   ├── insight_engine.py        # Core insight generation engine
+wearable-llm-insight-generator/
+├── data/                       # Sample datasets and test data
+├── docs/                       # Documentation files
+│   ├── api_reference.md        # API documentation
+│   ├── user_guide.md           # User guide
+│   ├── interactive_insight_simulator.md # Simulator documentation
+│   └── time_series_insight_timeline.md  # Timeline visualization documentation
+├── examples/                   # Example scripts
+│   ├── basic_usage.py          # Basic usage example
+│   ├── simulator_example.py    # Simulator usage example
+│   └── timeline_example.py     # Timeline visualization example
+├── screenshots/                # Visualization screenshots
+├── src/                        # Source code
+│   ├── feature_engineer.py     # Feature extraction from raw data
+│   ├── insight_engine.py       # Core insight generation engine
 │   ├── insight_prompt_builder.py # Prompt construction for LLMs
-│   ├── llm_engine.py            # LLM integration layer
-│   └── agent_simulator.py       # Coaching agent simulation
-├── api/
-│   └── app.py                   # FastAPI application
-├── demo/
-│   └── streamlit_app.py         # Interactive demo application
-├── notebooks/
-│   ├── 01_data_prep.ipynb       # Data preparation and analysis
-│   ├── 02_prompt_analysis.ipynb # Prompt engineering experiments
-│   ├── 03_agent_flow_demo.ipynb # Agent interaction flow
-│   └── 04_visual_insights.ipynb # Visualization of insights
-├── tests/
-│   ├── unit/                    # Unit tests for components
-│   └── integration/             # Integration tests for system
-├── diagrams/                    # System architecture diagrams
-└── requirements.txt             # Project dependencies
+│   ├── llm_engine.py           # LLM integration layer
+│   ├── agent_simulator.py      # Coaching agent simulation
+│   ├── simulator_engine.py     # Interactive insight simulator
+│   ├── demo_data_generator.py  # Synthetic data generation
+│   └── visualization/          # Visualization components
+│       ├── timeline_visualizer.py    # Static timeline visualization
+│       ├── timeline_interactive.py   # Interactive timeline visualization
+│       └── timeline_integration.py   # Integration with other components
 ```
 
 ## Usage Examples
