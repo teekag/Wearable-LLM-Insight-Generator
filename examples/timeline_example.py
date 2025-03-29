@@ -12,6 +12,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import logging
+import random
 
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -35,12 +36,23 @@ def run_basic_timeline_example():
     data_gen = DemoDataGenerator()
     
     # Generate 30 days of wearable data
-    data = data_gen.generate_demo_data(
-        start_date='2025-01-01',
+    profile, data, _ = data_gen.generate_demo_dataset(
+        profile_type="active",
         days=30,
-        metrics=['hrv_rmssd', 'sleep_hours', 'recovery_score', 'strain'],
-        user_profile={'age': 35, 'activity_level': 'active'}
+        scenario=None
     )
+    
+    # Manually add the metrics we need if they don't exist
+    for metric in ['hrv_rmssd', 'sleep_hours', 'recovery_score', 'strain']:
+        if metric not in data.columns:
+            if metric == 'hrv_rmssd':
+                data[metric] = np.random.normal(65, 10, 30)
+            elif metric == 'sleep_hours':
+                data[metric] = np.random.normal(7.5, 1, 30)
+            elif metric == 'recovery_score':
+                data[metric] = np.random.normal(75, 15, 30)
+            elif metric == 'strain':
+                data[metric] = np.random.normal(12, 4, 30)
     
     # Create sample insights
     insights = [
@@ -153,19 +165,16 @@ def run_simulation_example():
         'recovery_sensitivity': 'medium'
     }
     
+    # Set user profile
+    simulator.set_user_profile(user_profile)
+    
     # Run overtraining simulation
-    overtraining_data, overtraining_insights = simulator.simulate_scenario(
-        scenario_type='overtraining',
-        days=30,
-        user_profile=user_profile
-    )
+    simulator.set_simulation_parameters(scenario_type='overtraining', days=30)
+    overtraining_data, overtraining_insights = simulator.run_simulation()
     
     # Run recovery simulation
-    recovery_data, recovery_insights = simulator.simulate_scenario(
-        scenario_type='recovery',
-        days=30,
-        user_profile=user_profile
-    )
+    simulator.set_simulation_parameters(scenario_type='recovery_phase', days=30)
+    recovery_data, recovery_insights = simulator.run_simulation()
     
     # Create timeline integration
     integration = TimelineIntegration()
@@ -183,7 +192,7 @@ def run_simulation_example():
     integration.visualize_simulation(
         recovery_data,
         recovery_insights,
-        scenario_type='recovery',
+        scenario_type='recovery_phase',
         user_profile=user_profile,
         output_dir="outputs/examples/simulations/recovery"
     )
@@ -216,20 +225,33 @@ def run_comprehensive_example():
     
     # Generate data for multiple users
     users = {
-        'user_001': {'age': 25, 'activity_level': 'very_active'},
-        'user_002': {'age': 40, 'activity_level': 'moderately_active'},
-        'user_003': {'age': 55, 'activity_level': 'lightly_active'}
+        'user_001': 'very_active',
+        'user_002': 'moderately_active',
+        'user_003': 'lightly_active'
     }
     
     user_data = {}
-    for user_id, profile in users.items():
+    for user_id, profile_type in users.items():
         # Generate 60 days of data
-        data = data_gen.generate_demo_data(
-            start_date='2025-01-01',
-            days=60,
-            metrics=['hrv_rmssd', 'sleep_hours', 'recovery_score', 'strain', 'resting_hr'],
-            user_profile=profile
+        profile, data, _ = data_gen.generate_demo_dataset(
+            profile_type=profile_type,
+            days=60
         )
+        
+        # Manually add the metrics we need if they don't exist
+        for metric in ['hrv_rmssd', 'sleep_hours', 'recovery_score', 'strain', 'resting_hr']:
+            if metric not in data.columns:
+                if metric == 'hrv_rmssd':
+                    data[metric] = np.random.normal(65, 10, 60)
+                elif metric == 'sleep_hours':
+                    data[metric] = np.random.normal(7.5, 1, 60)
+                elif metric == 'recovery_score':
+                    data[metric] = np.random.normal(75, 15, 60)
+                elif metric == 'strain':
+                    data[metric] = np.random.normal(12, 4, 60)
+                elif metric == 'resting_hr':
+                    data[metric] = np.random.normal(60, 5, 60)
+        
         user_data[user_id] = data
     
     # Create simulator for generating insights
@@ -241,19 +263,33 @@ def run_comprehensive_example():
     # Process each user
     for user_id, data in user_data.items():
         # Generate insights using simulator
-        profile = users[user_id]
-        profile['name'] = f"User {user_id}"
+        profile = {
+            'name': f"User {user_id}",
+            'age': 35,
+            'gender': 'male',
+            'activity_level': users[user_id],
+            'training_goals': ['improve endurance', 'maintain strength'],
+            'sleep_target': 8.0,
+            'recovery_sensitivity': 'medium'
+        }
         
-        # Generate insights
-        _, insights = simulator.generate_insights(
-            data=data,
-            user_profile=profile
-        )
+        # Set user profile and generate insights
+        simulator.set_user_profile(profile)
+        
+        # We'll use a random scenario for each user
+        scenario_type = random.choice(['training_peak', 'recovery_phase', 'overtraining'])
+        simulator.set_simulation_parameters(scenario_type=scenario_type, days=len(data))
+        
+        # Apply the scenario to the data
+        simulated_data = simulator.apply_scenario(data)
+        
+        # Generate insights based on the scenario
+        _, insights = simulator.run_simulation()
         
         # Create visualizations
         integration.visualize_user_data(
             user_id=user_id,
-            data=data,
+            data=simulated_data,
             include_insights=True,
             interactive=True,
             output_dir=f"outputs/examples/users/{user_id}"
@@ -295,5 +331,5 @@ if __name__ == "__main__":
     print("- Scenario comparison: outputs/examples/simulations/comparison/")
     
     print("\nUser visualizations:")
-    for user_id in user_data.keys():
+    for user_id in ['user_001', 'user_002', 'user_003']:
         print(f"- User {user_id}: outputs/examples/users/{user_id}/")
