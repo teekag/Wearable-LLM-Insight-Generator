@@ -17,9 +17,32 @@ from datetime import datetime, timedelta
 import requests
 from PIL import Image
 
-# Add parent directory to path for imports
-sys.path.append("..")
-from src.data_utils import generate_synthetic_data, normalize_data, detect_anomalies, extract_trends
+# Enhanced path handling for both local and cloud environments
+# Check if we're in a cloud environment (like Streamlit Cloud)
+if os.path.exists('/mount/src'):
+    # Cloud environment with /mount/src structure
+    sys.path.append('/mount/src/wearable-llm-insight-generator')
+    try:
+        from src.data_utils import generate_synthetic_data, normalize_data, detect_anomalies, extract_trends
+    except ImportError:
+        st.error("Could not import modules from cloud path.")
+        st.stop()
+else:
+    # Local environment
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.insert(0, parent_dir)
+    
+    try:
+        # Try to import from src
+        from src.data_utils import generate_synthetic_data, normalize_data, detect_anomalies, extract_trends
+    except ImportError:
+        # If that fails, try a direct import (for when installed as a package)
+        try:
+            from data_utils import generate_synthetic_data, normalize_data, detect_anomalies, extract_trends
+        except ImportError:
+            st.error("Could not import required modules. Please make sure you're running the app from the correct directory.")
+            st.stop()
 
 # Set page config
 st.set_page_config(
